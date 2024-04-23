@@ -6,4 +6,6 @@ COPY entrypoint.sh /usr/local/bin/
 
 COPY etc/snmp/ /etc/snmp/
 
+EXPOSE 161/udp
+
 ENTRYPOINT ["entrypoint.sh"]

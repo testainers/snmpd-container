@@ -44,6 +44,7 @@ echo "SNMPv2c - Walk"
 snmpwalk -v 2c -c public "$HOST:$PORT" "$WALK" >/dev/null 2>&1
 
 if [ $? -ne 0 ]; then
+  echo "Error: SNMPv2c Walk"
   CODE=10
 fi
 
@@ -52,6 +53,7 @@ echo "SNMPv2c - Get"
 RESULT=$(snmpget -v2c -c public -Ovq "$HOST:$PORT" "$GET")
 
 if [ "$RESULT" != "At flying circus" ]; then
+  echo "Error: $RESULT"
   CODE=11
 fi
 
@@ -60,6 +62,7 @@ echo "SNMPv2c - GetNext"
 RESULT=$(snmpgetnext -v2c -c public -Ovq "$HOST:$PORT" "$GET")
 
 if [ "$RESULT" != "72" ]; then
+  echo "Error: $RESULT"
   CODE=12
 fi
 
@@ -69,6 +72,7 @@ snmpget -v3 -Ovq -u "$SNMP_V3_USER" -l noAuthNoPriv \
   "$HOST:$PORT" "$GET" >/dev/null 2>&1
 
 if [ $? -eq 0 ]; then
+  echo "Error: $RESULT"
   CODE=13
 fi
 
@@ -108,6 +112,7 @@ snmpwalk -v3 -On -u "$SNMP_V3_USER" \
   "$HOST:$PORT" "$WALK" >/dev/null 2>&1
 
 if [ $? -ne 0 ]; then
+  echo "Error: SNMPv3 Walk"
   CODE=30
 fi
 
@@ -120,6 +125,7 @@ RESULT=$(snmpget -v3 -Ovq -u "$SNMP_V3_USER" \
   "$HOST:$PORT" "$GET")
 
 if [ "$RESULT" != "At flying circus" ]; then
+  echo "Error: $RESULT"
   CODE=31
 fi
 
@@ -132,6 +138,7 @@ RESULT=$(snmpgetnext -v3 -Ovq -u "$SNMP_V3_USER" \
   "$HOST:$PORT" "$GET")
 
 if [ "$RESULT" != "72" ]; then
+  echo "Error: $RESULT"
   CODE=32
 fi
 
@@ -170,6 +177,7 @@ snmpwalk -v3 -On -u "$SNMP_V3_USER" \
   "$HOST:$PORT" "$WALK" >/dev/null 2>&1
 
 if [ $? -ne 0 ]; then
+  echo "Error: SNMPv3 Walk"
   CODE=40
 fi
 
@@ -184,6 +192,7 @@ RESULT=$(snmpget -v3 -Ovq -u "$SNMP_V3_USER" \
   "$HOST:$PORT" "$GET")
 
 if [ "$RESULT" != "At flying circus" ]; then
+  echo "Error: $RESULT"
   CODE=41
 fi
 
@@ -198,6 +207,7 @@ RESULT=$(snmpgetnext -v3 -Ovq -u "$SNMP_V3_USER" \
   "$HOST:$PORT" "$GET")
 
 if [ "$RESULT" != "72" ]; then
+  echo "Error: $RESULT"
   CODE=42
 fi
 

@@ -9,7 +9,7 @@ jobs:
   tests:
     name: Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
     strategy:
       matrix:
         alpine:

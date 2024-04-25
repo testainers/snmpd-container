@@ -50,7 +50,7 @@ fi
 
 # SNMPv2c - Get
 echo "SNMPv2c - Get"
-RESULT=$(snmpget -v2c -c public -Ovq "$HOST:$PORT" "$GET")
+RESULT=$(snmpget -v2c -c public -Ovq "$HOST:$PORT" "$GET" | tr -d '"')
 
 if [ "$RESULT" != "At flying circus" ]; then
   echo "Error: $RESULT"
@@ -122,7 +122,7 @@ RESULT=$(snmpget -v3 -Ovq -u "$SNMP_V3_USER" \
   -l authNoPriv \
   -a "$SNMP_V3_AUTH_PROTOCOL" \
   -A "$SNMP_V3_AUTH_PWD" \
-  "$HOST:$PORT" "$GET")
+  "$HOST:$PORT" "$GET" | tr -d '"')
 
 if [ "$RESULT" != "At flying circus" ]; then
   echo "Error: $RESULT"
@@ -189,7 +189,7 @@ RESULT=$(snmpget -v3 -Ovq -u "$SNMP_V3_USER" \
   -A "$SNMP_V3_AUTH_PWD" \
   -x "$SNMP_V3_PRIV_PROTOCOL" \
   -X "$SNMP_V3_PRIV_PWD" \
-  "$HOST:$PORT" "$GET")
+  "$HOST:$PORT" "$GET" | tr -d '"')
 
 if [ "$RESULT" != "At flying circus" ]; then
   echo "Error: $RESULT"

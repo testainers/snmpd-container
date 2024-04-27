@@ -31,22 +31,30 @@ Obrigado pelo seu apoio contínuo!
 
 ## Environment Variables
 
-| Variable              | Options         | Default |
-|-----------------------|-----------------|---------|
-| SNMP_V3_USER          | --              | --      |
-| SNMP_V3_USER_TYPE     | rouser - rwuser | rouser  |
-| SNMP_V3_AUTH_PROTOCOL | MD5 - SHA       | SHA     |
-| SNMP_V3_AUTH_PWD      | --              | --      |
-| SNMP_V3_PRIV_PROTOCOL | DES - AES       | AES     |
-| SNMP_V3_PRIV_PWD      | --              | --      |
+| Variable              | Options         | Default                        |
+|-----------------------|-----------------|--------------------------------|
+| SNMP_COMMUNITY        | --              | public                         |
+| SNMP_LOCATION         | --              | At flying circus               |
+| SNMP_CONTACT          | --              | Testainers <me@testainers.com> |
+| SNMP_SERVICES         | --              | 72                             |
+| SNMP_V3_USER          | --              | --                             |
+| SNMP_V3_USER_TYPE     | rouser - rwuser | rouser                         |
+| SNMP_V3_AUTH_PROTOCOL | MD5 - SHA       | SHA                            |
+| SNMP_V3_AUTH_PWD      | --              | --                             |
+| SNMP_V3_PRIV_PROTOCOL | DES - AES       | AES                            |
+| SNMP_V3_PRIV_PWD      | --              | --                             |
 
 ## How to Use
 
+### Only SNMPv2c
+
+Run:
+
 ```shell
-docker run --rm --name snmpd -p 5161:161/udp -d testainers/snmpd-container:latest
+docker run -d --rm --name snmpd -p 5161:161/udp testainers/snmpd-container:latest
 ```
 
-## How to Connect
+Test:
 
 ```shell
 snmpwalk -v2c -c public 127.0.0.1:5161 .
@@ -54,14 +62,22 @@ snmpwalk -v2c -c public 127.0.0.1:5161 .
 
 ---
 
-## Build
+## Local Image Build
+
+Build:
 
 ```shell
 docker build . --no-cache -t snmpd-container
 ```
 
-## Run
+Run:
 
 ```shell
-docker run --rm --name snmpd -p 5161:161/udp -d snmpd-container
+docker run -d --rm --name snmpd -p 5161:161/udp snmpd-container
+```
+
+Access:
+
+```shell
+docker exec -it snmpd sh
 ```

@@ -26,22 +26,38 @@ create_user_auth_priv() {
   echo "$SNMP_V3_USER_TYPE $SNMP_V3_USER priv" >'/usr/share/snmp/snmpd.conf'
 }
 
+if [ -z "$SNMP_COMMUNITY" ]; then
+  export SNMP_COMMUNITY="public"
+fi
+
+if [ -z "$SNMP_LOCATION" ]; then
+  export SNMP_LOCATION="At flying circus"
+fi
+
+if [ -z "$SNMP_CONTACT" ]; then
+  export SNMP_CONTACT="Testainers <me@testainers.com>"
+fi
+
+if [ -z "$SNMP_SERVICES" ]; then
+  export SNMP_SERVICES="72"
+fi
+
 if [ -z "$SNMP_V3_USER_TYPE" ]; then
-  SNMP_V3_USER_TYPE="rouser"
+  export SNMP_V3_USER_TYPE="rouser"
 fi
 
 if [ "$SNMP_V3_USER_TYPE" != "rwuser" ] && [ "$SNMP_V3_USER_TYPE" != "rouser" ]; then
   echo "SNMP_V3_USER_TYPE is not correct"
   echo "Updating from '$SNMP_V3_USER_TYPE' to 'rouser'"
-  SNMP_V3_USER_TYPE="rouser"
+  export SNMP_V3_USER_TYPE="rouser"
 fi
 
 if [ -z "$SNMP_V3_AUTH_PROTOCOL" ]; then
-  SNMP_V3_AUTH_PROTOCOL="SHA"
+  export SNMP_V3_AUTH_PROTOCOL="SHA"
 fi
 
 if [ -z "$SNMP_V3_PRIV_PROTOCOL" ]; then
-  SNMP_V3_PRIV_PROTOCOL="AES"
+  export SNMP_V3_PRIV_PROTOCOL="AES"
 fi
 
 if [ -n "$SNMP_V3_USER" ]; then
@@ -60,6 +76,10 @@ else
   echo "SNMP_V3_USER is not set"
   echo "User not created"
 fi
+
+envsubst <'/etc/snmp/snmpd.template.conf' >'/etc/snmp/snmpd.conf'
+
+rm -f '/etc/snmp/snmpd.template.conf'
 
 ### Start snmpd.
 # /usr/sbin/snmpd -f -Lo -C -c /etc/snmp/snmpd.conf

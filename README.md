@@ -31,17 +31,18 @@ Obrigado pelo seu apoio contínuo!
 
 ## Environment Variables
 
-| Variable              | Options         | Default          |
-|-----------------------|-----------------|------------------|
-| SNMP_COMMUNITY        | --              | public           |
-| SNMP_LOCATION         | --              | At flying circus |
-| SNMP_SERVICES         | --              | 72               |
-| SNMP_V3_USER          | --              | --               |
-| SNMP_V3_USER_TYPE     | rouser - rwuser | rouser           |
-| SNMP_V3_AUTH_PROTOCOL | MD5 - SHA       | SHA              |
-| SNMP_V3_AUTH_PWD      | --              | --               |
-| SNMP_V3_PRIV_PROTOCOL | DES - AES       | AES              |
-| SNMP_V3_PRIV_PWD      | --              | --               |
+| Variable              | Options         | Default                        |
+|-----------------------|-----------------|--------------------------------|
+| SNMP_COMMUNITY        | --              | public                         |
+| SNMP_LOCATION         | --              | At flying circus               |
+| SNMP_CONTACT          | --              | Testainers <me@testainers.com> |
+| SNMP_SERVICES         | --              | 72                             |
+| SNMP_V3_USER          | --              | --                             |
+| SNMP_V3_USER_TYPE     | rouser - rwuser | rouser                         |
+| SNMP_V3_AUTH_PROTOCOL | MD5 - SHA       | SHA                            |
+| SNMP_V3_AUTH_PWD      | --              | --                             |
+| SNMP_V3_PRIV_PROTOCOL | DES - AES       | AES                            |
+| SNMP_V3_PRIV_PWD      | --              | --                             |
 
 ## How to Use
 

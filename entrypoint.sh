@@ -34,6 +34,10 @@ if [ -z "$SNMP_LOCATION" ]; then
   export SNMP_LOCATION="At flying circus"
 fi
 
+if [ -z "$SNMP_CONTACT" ]; then
+  export SNMP_CONTACT="Testainers <me@testainers.com>"
+fi
+
 if [ -z "$SNMP_SERVICES" ]; then
   export SNMP_SERVICES="72"
 fi

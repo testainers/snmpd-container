@@ -34,6 +34,10 @@ if [ -z "$SNMP_LOCATION" ]; then
   export SNMP_LOCATION="At flying circus"
 fi
 
+if [ -z "$SNMP_SERVICES" ]; then
+  export SNMP_SERVICES="72"
+fi
+
 if [ -z "$SNMP_V3_USER_TYPE" ]; then
   export SNMP_V3_USER_TYPE="rouser"
 fi

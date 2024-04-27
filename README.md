@@ -35,6 +35,7 @@ Obrigado pelo seu apoio contínuo!
 |-----------------------|-----------------|------------------|
 | SNMP_COMMUNITY        | --              | public           |
 | SNMP_LOCATION         | --              | At flying circus |
+| SNMP_SERVICES         | --              | 72               |
 | SNMP_V3_USER          | --              | --               |
 | SNMP_V3_USER_TYPE     | rouser - rwuser | rouser           |
 | SNMP_V3_AUTH_PROTOCOL | MD5 - SHA       | SHA              |

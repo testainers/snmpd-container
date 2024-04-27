@@ -26,9 +26,15 @@ GET=".1.3.6.1.2.1.1.6.0"
 ###############
 # Build Image #
 ###############
-printf "Building Image...\n"
-docker build . --quiet --no-cache --tag "$IMAGE_NAME"
-printf "[OK]\n\n"
+printf "Building Image... "
+if docker build . --quiet --no-cache --tag "$IMAGE_NAME" >/dev/null 2>&1
+then
+  printf "[OK]\n\n"
+else
+  CODE=1
+  printf "[FAIL] %s\n" "$CODE"
+  exit $CODE
+fi
 
 ###########
 # SNMPv2c #
@@ -36,12 +42,14 @@ printf "[OK]\n\n"
 
 SNMP_COMMUNITY="tstcmnt"
 SNMP_LOCATION="At home"
+SNMP_SERVICES="60"
 SNMP_V3_USER="testainers"
 
 printf "Starting SNMPv2c... "
 docker run -d --rm --name "$CONTAINER_NAME" -p "$PORT:161/udp" \
   -e SNMP_COMMUNITY="$SNMP_COMMUNITY" \
   -e SNMP_LOCATION="$SNMP_LOCATION" \
+  -e SNMP_SERVICES="$SNMP_SERVICES" \
   "$IMAGE_NAME" >/dev/null 2>&1
 sleep 2
 printf "[OK]\n"
@@ -71,7 +79,7 @@ fi
 printf "Testing SNMPv2c GetNext... "
 RESULT=$(snmpgetnext -v2c -c "$SNMP_COMMUNITY" -Ovq "$HOST:$PORT" "$GET")
 
-if [ "$RESULT" == "72" ]; then
+if [ "$RESULT" == "$SNMP_SERVICES" ]; then
   printf "[OK]\n"
 else
   CODE=12
@@ -112,6 +120,7 @@ SNMP_V3_AUTH_PWD="a1b2c3d4e5f6"
 printf "Starting SNMPv3 with auth and NO priv... "
 docker run -d --rm --name "$CONTAINER_NAME" -p "$PORT:161/udp" \
   -e SNMP_LOCATION="$SNMP_LOCATION" \
+  -e SNMP_SERVICES="$SNMP_SERVICES" \
   -e SNMP_V3_USER="$SNMP_V3_USER" \
   -e SNMP_V3_AUTH_PROTOCOL="$SNMP_V3_AUTH_PROTOCOL" \
   -e SNMP_V3_AUTH_PWD="$SNMP_V3_AUTH_PWD" \
@@ -156,7 +165,7 @@ RESULT=$(snmpgetnext -v3 -Ovq -u "$SNMP_V3_USER" \
   -A "$SNMP_V3_AUTH_PWD" \
   "$HOST:$PORT" "$GET")
 
-if [ "$RESULT" == "72" ]; then
+if [ "$RESULT" == "$SNMP_SERVICES" ]; then
   printf "[OK]\n"
 else
   CODE=32
@@ -179,6 +188,7 @@ SNMP_V3_PRIV_PWD="f6e5d4c3b2a1"
 printf "Starting SNMPv3 with auth and with privacy... "
 docker run -d --rm --name "$CONTAINER_NAME" -p "$PORT:161/udp" \
   -e SNMP_LOCATION="$SNMP_LOCATION" \
+  -e SNMP_SERVICES="$SNMP_SERVICES" \
   -e SNMP_V3_USER="$SNMP_V3_USER" \
   -e SNMP_V3_AUTH_PROTOCOL="$SNMP_V3_AUTH_PROTOCOL" \
   -e SNMP_V3_AUTH_PWD="$SNMP_V3_AUTH_PWD" \
@@ -231,7 +241,7 @@ RESULT=$(snmpgetnext -v3 -Ovq -u "$SNMP_V3_USER" \
   -X "$SNMP_V3_PRIV_PWD" \
   "$HOST:$PORT" "$GET")
 
-if [ "$RESULT" == "72" ]; then
+if [ "$RESULT" == "$SNMP_SERVICES" ]; then
   printf "[OK]\n"
 else
   CODE=42

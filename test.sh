@@ -6,7 +6,7 @@
 CODE=0
 
 # Name of the image
-IMAGE_NAME="snmpd-container-test"
+IMAGE_NAME="snmpd-container-test:test"
 
 # Name of the container
 CONTAINER_NAME="snmpd"
@@ -26,62 +26,75 @@ GET=".1.3.6.1.2.1.1.6.0"
 ###############
 # Build Image #
 ###############
-
-docker build . --no-cache -t "$IMAGE_NAME"
+printf "Building Image...\n"
+docker build . --quiet --no-cache --tag "$IMAGE_NAME"
+printf "[OK]\n\n"
 
 ###########
 # SNMPv2c #
 ###########
 
 SNMP_COMMUNITY="tstcmnt"
+SNMP_LOCATION="At home"
 SNMP_V3_USER="testainers"
 
-echo "Starting SNMPv2c"
+printf "Starting SNMPv2c... "
 docker run -d --rm --name "$CONTAINER_NAME" -p "$PORT:161/udp" \
-  -e SNMP_COMMUNITY=$SNMP_COMMUNITY \
+  -e SNMP_COMMUNITY="$SNMP_COMMUNITY" \
+  -e SNMP_LOCATION="$SNMP_LOCATION" \
   "$IMAGE_NAME" >/dev/null 2>&1
 sleep 2
+printf "[OK]\n"
 
-# Testing SNMPv2c - Walk
-echo "Testing SNMPv2c - Walk"
-if ! snmpwalk -v 2c -c "$SNMP_COMMUNITY" "$HOST:$PORT" "$WALK" >/dev/null 2>&1
+# Testing SNMPv2c Walk
+printf "Testing SNMPv2c Walk... "
+if snmpwalk -v 2c -c "$SNMP_COMMUNITY" "$HOST:$PORT" "$WALK" >/dev/null 2>&1
 then
+  printf "[OK]\n"
+else
   CODE=10
-  echo "Error $CODE: SNMPv2c Walk"
+  printf "[FAIL] %s\n" "$CODE"
 fi
 
-# Testing SNMPv2c - Get
-echo "Testing SNMPv2c - Get"
+# Testing SNMPv2c Get
+printf "Testing SNMPv2c Get... "
 RESULT=$(snmpget -v2c -c "$SNMP_COMMUNITY" -Ovq "$HOST:$PORT" "$GET" | tr -d '"')
 
-if [ "$RESULT" != "At flying circus" ]; then
+if [ "$RESULT" == "$SNMP_LOCATION" ]; then
+  printf "[OK]\n"
+else
   CODE=11
-  echo "Error $CODE: $RESULT"
+  printf "[FAIL] %s\n" "$CODE"
 fi
 
-# Testing SNMPv2c - GetNext
-echo "Testing SNMPv2c - GetNext"
+# Testing SNMPv2c GetNext
+printf "Testing SNMPv2c GetNext... "
 RESULT=$(snmpgetnext -v2c -c "$SNMP_COMMUNITY" -Ovq "$HOST:$PORT" "$GET")
 
-if [ "$RESULT" != "72" ]; then
+if [ "$RESULT" == "72" ]; then
+  printf "[OK]\n"
+else
   CODE=12
-  echo "Error $CODE: $RESULT"
+  printf "[FAIL] %s\n" "$CODE"
 fi
 
 # Testing SNMPv3 - Get - Need to fail
-echo "Testing SNMPv3 - Get - Need to fail"
+printf "Testing SNMPv3 Get... "
 
-if snmpget -v3 -Ovq -u "$SNMP_V3_USER" -l noAuthNoPriv \
+if ! snmpget -v3 -Ovq -u "$SNMP_V3_USER" -l noAuthNoPriv \
        "$HOST:$PORT" "$GET" >/dev/null 2>&1
 then
+  printf "[OK]\n"
+else
   CODE=13
-  echo "Error $CODE: SNMPv3 - Get - Need to fail"
+  printf "[FAIL] %s\n" "$CODE"
 fi
 
 # Stop Container
-echo "Stopping SNMPv2c"
+printf "Stopping SNMPv2c... "
 docker stop -t 1 "$CONTAINER_NAME" >/dev/null 2>&1
 sleep 2
+printf "[OK]\n\n"
 
 ##############################
 # SNMPv3 NO auth and NO priv #
@@ -96,56 +109,65 @@ sleep 2
 SNMP_V3_AUTH_PROTOCOL="SHA"
 SNMP_V3_AUTH_PWD="a1b2c3d4e5f6"
 
-echo "Starting SNMPv3 with auth and NO priv"
+printf "Starting SNMPv3 with auth and NO priv... "
 docker run -d --rm --name "$CONTAINER_NAME" -p "$PORT:161/udp" \
-  -e SNMP_V3_USER=$SNMP_V3_USER \
-  -e SNMP_V3_AUTH_PROTOCOL=$SNMP_V3_AUTH_PROTOCOL \
-  -e SNMP_V3_AUTH_PWD=$SNMP_V3_AUTH_PWD \
+  -e SNMP_LOCATION="$SNMP_LOCATION" \
+  -e SNMP_V3_USER="$SNMP_V3_USER" \
+  -e SNMP_V3_AUTH_PROTOCOL="$SNMP_V3_AUTH_PROTOCOL" \
+  -e SNMP_V3_AUTH_PWD="$SNMP_V3_AUTH_PWD" \
   "$IMAGE_NAME" >/dev/null 2>&1
 sleep 2
+printf "[OK]\n"
 
 # Testing SNMPv3 Walk
-echo "Testing SNMPv3 Walk"
-if ! snmpwalk -v3 -On -u "$SNMP_V3_USER" \
+printf "Testing SNMPv3 Walk..."
+if snmpwalk -v3 -On -u "$SNMP_V3_USER" \
      -l authNoPriv \
      -a "$SNMP_V3_AUTH_PROTOCOL" \
      -A "$SNMP_V3_AUTH_PWD" \
      "$HOST:$PORT" "$WALK" >/dev/null 2>&1
 then
+  printf "[OK]\n"
+else
   CODE=30
-  echo "Error $CODE: SNMPv3 Walk"
+  printf "[FAIL] %s\n" "$CODE"
 fi
 
 # Testing SNMPv3 Get
-echo "Testing SNMPv3 Get"
+printf "Testing SNMPv3 Get... "
 RESULT=$(snmpget -v3 -Ovq -u "$SNMP_V3_USER" \
   -l authNoPriv \
   -a "$SNMP_V3_AUTH_PROTOCOL" \
   -A "$SNMP_V3_AUTH_PWD" \
   "$HOST:$PORT" "$GET" | tr -d '"')
 
-if [ "$RESULT" != "At flying circus" ]; then
+if [ "$RESULT" == "$SNMP_LOCATION" ]; then
+  printf "[OK]\n"
+else
   CODE=31
-  echo "Error $CODE: $RESULT"
+  printf "[FAIL] %s\n" "$CODE"
 fi
 
 # Testing SNMPv3 GetNext
-echo "Testing SNMPv3 GetNext"
+printf "Testing SNMPv3 GetNext... "
 RESULT=$(snmpgetnext -v3 -Ovq -u "$SNMP_V3_USER" \
   -l authNoPriv \
   -a "$SNMP_V3_AUTH_PROTOCOL" \
   -A "$SNMP_V3_AUTH_PWD" \
   "$HOST:$PORT" "$GET")
 
-if [ "$RESULT" != "72" ]; then
+if [ "$RESULT" == "72" ]; then
+  printf "[OK]\n"
+else
   CODE=32
-  echo "Error $CODE: $RESULT"
+  printf "[FAIL] %s\n" "$CODE"
 fi
 
 # Stopping SNMPv3 with auth and NO priv
-echo "Starting SNMPv3 with auth and NO priv"
+printf "Stopping SNMPv3 with auth and NO priv... "
 docker stop -t 1 "$CONTAINER_NAME" >/dev/null 2>&1
 sleep 2
+printf "[OK]\n\n"
 
 #####################################
 # SNMPv3 with auth and with privacy #
@@ -154,19 +176,21 @@ sleep 2
 SNMP_V3_PRIV_PROTOCOL="AES"
 SNMP_V3_PRIV_PWD="f6e5d4c3b2a1"
 
-echo "Starting SNMPv3 with auth and with privacy"
+printf "Starting SNMPv3 with auth and with privacy... "
 docker run -d --rm --name "$CONTAINER_NAME" -p "$PORT:161/udp" \
-  -e SNMP_V3_USER=$SNMP_V3_USER \
-  -e SNMP_V3_AUTH_PROTOCOL=$SNMP_V3_AUTH_PROTOCOL \
-  -e SNMP_V3_AUTH_PWD=$SNMP_V3_AUTH_PWD \
-  -e SNMP_V3_PRIV_PROTOCOL=$SNMP_V3_PRIV_PROTOCOL \
-  -e SNMP_V3_PRIV_PWD=$SNMP_V3_PRIV_PWD \
+  -e SNMP_LOCATION="$SNMP_LOCATION" \
+  -e SNMP_V3_USER="$SNMP_V3_USER" \
+  -e SNMP_V3_AUTH_PROTOCOL="$SNMP_V3_AUTH_PROTOCOL" \
+  -e SNMP_V3_AUTH_PWD="$SNMP_V3_AUTH_PWD" \
+  -e SNMP_V3_PRIV_PROTOCOL="$SNMP_V3_PRIV_PROTOCOL" \
+  -e SNMP_V3_PRIV_PWD="$SNMP_V3_PRIV_PWD" \
   "$IMAGE_NAME" >/dev/null 2>&1
 sleep 2
+printf "[OK]\n"
 
 # Testing SNMPv3 Walk
-echo "Testing SNMPv3 Walk"
-if ! snmpwalk -v3 -On -u "$SNMP_V3_USER" \
+printf "Testing SNMPv3 Walk... "
+if snmpwalk -v3 -On -u "$SNMP_V3_USER" \
      -l authPriv \
      -a "$SNMP_V3_AUTH_PROTOCOL" \
      -A "$SNMP_V3_AUTH_PWD" \
@@ -174,12 +198,14 @@ if ! snmpwalk -v3 -On -u "$SNMP_V3_USER" \
      -X "$SNMP_V3_PRIV_PWD" \
      "$HOST:$PORT" "$WALK" >/dev/null 2>&1
 then
+  printf "[OK]\n"
+else
   CODE=40
-  echo "Error $CODE: SNMPv3 Walk"
+  printf "[FAIL] %s\n" "$CODE"
 fi
 
 # Testing SNMPv3 Get
-echo "Testing SNMPv3 Get"
+printf "Testing SNMPv3 Get... "
 RESULT=$(snmpget -v3 -Ovq -u "$SNMP_V3_USER" \
   -l authPriv \
   -a "$SNMP_V3_AUTH_PROTOCOL" \
@@ -188,13 +214,15 @@ RESULT=$(snmpget -v3 -Ovq -u "$SNMP_V3_USER" \
   -X "$SNMP_V3_PRIV_PWD" \
   "$HOST:$PORT" "$GET" | tr -d '"')
 
-if [ "$RESULT" != "At flying circus" ]; then
+if [ "$RESULT" == "$SNMP_LOCATION" ]; then
+  printf "[OK]\n"
+else
   CODE=41
-  echo "Error $CODE: $RESULT"
+  printf "[FAIL] %s\n" "$CODE"
 fi
 
 # Testing SNMPv3 GetNext
-echo "Testing SNMPv3 GetNext"
+printf "Testing SNMPv3 GetNext... "
 RESULT=$(snmpgetnext -v3 -Ovq -u "$SNMP_V3_USER" \
   -l authPriv \
   -a "$SNMP_V3_AUTH_PROTOCOL" \
@@ -203,15 +231,18 @@ RESULT=$(snmpgetnext -v3 -Ovq -u "$SNMP_V3_USER" \
   -X "$SNMP_V3_PRIV_PWD" \
   "$HOST:$PORT" "$GET")
 
-if [ "$RESULT" != "72" ]; then
+if [ "$RESULT" == "72" ]; then
+  printf "[OK]\n"
+else
   CODE=42
-  echo "Error $CODE: $RESULT"
+  printf "[FAIL] %s\n" "$CODE"
 fi
 
 # Stopping SNMPv3 with auth and with privacy
-echo "Stopping SNMPv3 with auth and with privacy"
+printf "Stopping SNMPv3 with auth and with privacy... "
 docker stop -t 1 "$CONTAINER_NAME" >/dev/null 2>&1
 sleep 2
+printf "[OK]\n\n"
 
 ################
 # Remove Image #
@@ -219,6 +250,6 @@ sleep 2
 
 docker image rm "$IMAGE_NAME" >/dev/null 2>&1
 
-echo "Done"
+printf "Done!\n"
 
 exit $CODE

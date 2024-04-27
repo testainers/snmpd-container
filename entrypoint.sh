@@ -30,6 +30,10 @@ if [ -z "$SNMP_COMMUNITY" ]; then
   export SNMP_COMMUNITY="public"
 fi
 
+if [ -z "$SNMP_LOCATION" ]; then
+  export SNMP_LOCATION="At flying circus"
+fi
+
 if [ -z "$SNMP_V3_USER_TYPE" ]; then
   export SNMP_V3_USER_TYPE="rouser"
 fi

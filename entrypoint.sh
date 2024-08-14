@@ -42,9 +42,7 @@ else
   export SNMP_CONTACT=""
 fi
 
-if [ -n "$SNMP_SERVICES" ]; then
-  export SNMP_SERVICES="sysServices $SNMP_SERVICES"
-else
+if [ -z "$SNMP_SERVICES" ]; then
   export SNMP_SERVICES="72"
 fi
 

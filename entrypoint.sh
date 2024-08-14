@@ -30,15 +30,21 @@ if [ -z "$SNMP_COMMUNITY" ]; then
   export SNMP_COMMUNITY="public"
 fi
 
-if [ -z "$SNMP_LOCATION" ]; then
-  export SNMP_LOCATION="At flying circus"
+if [ -n "$SNMP_LOCATION" ]; then
+  export SNMP_LOCATION="sysLocation $SNMP_LOCATION"
+else
+  export SNMP_LOCATION=""
 fi
 
-if [ -z "$SNMP_CONTACT" ]; then
-  export SNMP_CONTACT="Testainers <me@testainers.com>"
+if [ -n "$SNMP_CONTACT" ]; then
+  export SNMP_CONTACT="sysContact $SNMP_CONTACT"
+else
+  export SNMP_CONTACT=""
 fi
 
-if [ -z "$SNMP_SERVICES" ]; then
+if [ -n "$SNMP_SERVICES" ]; then
+  export SNMP_SERVICES="sysServices $SNMP_SERVICES"
+else
   export SNMP_SERVICES="72"
 fi
 

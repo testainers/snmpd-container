@@ -297,6 +297,8 @@ docker stop -t 1 "$CONTAINER_NAME" >/dev/null 2>&1
 sleep 2
 printf "[OK]\n\n"
 
+# TODO: Write test for SNMP SET!
+
 ##################
 # Removing Image #
 ##################

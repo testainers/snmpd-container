@@ -31,18 +31,21 @@ Obrigado pelo seu apoio contínuo!
 
 ## Environment Variables
 
-| Variable              | Options         | Default                        |
-|-----------------------|-----------------|--------------------------------|
-| SNMP_COMMUNITY        | --              | public                         |
-| SNMP_LOCATION         | --              | At flying circus               |
-| SNMP_CONTACT          | --              | Testainers <me@testainers.com> |
-| SNMP_SERVICES         | --              | 72                             |
-| SNMP_V3_USER          | --              | --                             |
-| SNMP_V3_USER_TYPE     | rouser - rwuser | rouser                         |
-| SNMP_V3_AUTH_PROTOCOL | MD5 - SHA       | SHA                            |
-| SNMP_V3_AUTH_PWD      | --              | --                             |
-| SNMP_V3_PRIV_PROTOCOL | DES - AES       | AES                            |
-| SNMP_V3_PRIV_PWD      | --              | --                             |
+| Variable              | Options         | Default |
+|-----------------------|-----------------|---------|
+| SNMP_COMMUNITY        | --              | public  |
+| SNMP_LOCATION         | --              | --      |
+| SNMP_CONTACT          | --              | --      |
+| SNMP_SERVICES         | --              | --      |
+| SNMP_V3_USER          | --              | --      |
+| SNMP_V3_USER_TYPE     | rouser - rwuser | rouser  |
+| SNMP_V3_AUTH_PROTOCOL | MD5 - SHA       | SHA     |
+| SNMP_V3_AUTH_PWD      | --              | --      |
+| SNMP_V3_PRIV_PROTOCOL | DES - AES       | AES     |
+| SNMP_V3_PRIV_PWD      | --              | --      |
+
+If `SNMP_LOCATION`, `SNMP_CONTACT` or `SNMP_SERVICES` are not set, they may
+be writable.
 
 ## How to Use
 
@@ -73,7 +76,35 @@ docker build . --no-cache -t snmpd-container
 Run:
 
 ```shell
-docker run -d --rm --name snmpd -p 5161:161/udp snmpd-container
+docker run -d --rm --name snmpd -p 5161:161/udp \
+  -e SNMP_V3_USER_TYPE=rwuser \
+  -e SNMP_V3_USER=testainers \
+  -e SNMP_V3_AUTH_PWD=authpass \
+  -e SNMP_V3_PRIV_PWD=privpass \
+  snmpd-container
+```
+
+Test:
+
+```shell
+snmpwalk -v3 -On -u testainers -l authPriv \
+  -a SHA -A authpass \
+  -x AES -X privpass \
+  localhost:5161 .1.3.6.1.2.1.1
+```
+
+```shell
+snmpset -v3 -u testainers -l authPriv \
+  -a SHA -A authpass \
+  -x AES -X privpass \
+  localhost:5161 .1.3.6.1.2.1.1.4.0 s "admin@testainers.com"
+```
+
+```shell
+snmpget -v3 -u testainers -l authPriv \
+  -a SHA -A authpass \
+  -x AES -X privpass \
+  localhost:5161 .1.3.6.1.2.1.1.4.0
 ```
 
 Access:

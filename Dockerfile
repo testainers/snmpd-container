@@ -1,4 +1,4 @@
-FROM alpine:${ALPINE_VERSION:-3.19}
+FROM alpine:${ALPINE_VERSION:-3.20}
 
 RUN apk add --update --no-cache net-snmp net-snmp-tools envsubst
 

@@ -36,7 +36,7 @@ Obrigado pelo seu apoio contínuo!
 | SNMP_COMMUNITY        | --              | public  |
 | SNMP_LOCATION         | --              | --      |
 | SNMP_CONTACT          | --              | --      |
-| SNMP_SERVICES         | --              | --      |
+| SNMP_SERVICES         | --              | 72      |
 | SNMP_V3_USER          | --              | --      |
 | SNMP_V3_USER_TYPE     | rouser - rwuser | rouser  |
 | SNMP_V3_AUTH_PROTOCOL | MD5 - SHA       | SHA     |
@@ -44,8 +44,7 @@ Obrigado pelo seu apoio contínuo!
 | SNMP_V3_PRIV_PROTOCOL | DES - AES       | AES     |
 | SNMP_V3_PRIV_PWD      | --              | --      |
 
-If `SNMP_LOCATION`, `SNMP_CONTACT` or `SNMP_SERVICES` are not set, they may
-be writable.
+If `SNMP_LOCATION` or `SNMP_CONTACT` are not set, they may be writable.
 
 ## How to Use
 
